@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { Card } from '@rneui/themed';
+import styles from './styles';
 
 export default function Gasto({ gasto }) {
   return (
@@ -21,20 +22,3 @@ export default function Gasto({ gasto }) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: { borderRadius: 10 },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  nombre: { fontSize: 18, fontWeight: 'bold' },
-  categoria: { color: 'gray', fontSize: 14 },
-  fecha: { color: '#777', fontSize: 12 },
-  monto: { fontSize: 18, fontWeight: 'bold', color: '#2e8b57' },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 10,
-  },
-});

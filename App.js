@@ -19,7 +19,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       {showForm ? (
-        <GastoForm />
+        <GastoForm onCancel={() => setShowForm(false)} />
       ) : (
         <>
           <View style={styles.header}>
