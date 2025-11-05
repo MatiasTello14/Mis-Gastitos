@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { FAB, Divider } from '@rneui/themed';
 import { Icon } from '@rneui/base';
 import { getGastos } from './services/gastos';
@@ -17,34 +17,36 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      {showForm ? (
-        <GastoForm onCancel={() => setShowForm(false)} />
-      ) : (
-        <>
-          <View style={styles.header}>
-            <Text style={styles.titulo}>💸 Mis Gastitos</Text>
-            <View style={styles.iconos}>
-              <Icon name="search" type="font-awesome" color="black" />
-              <Icon name="filter" type="font-awesome" color="black" />
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        {showForm ? (
+          <GastoForm onCancel={() => setShowForm(false)} />
+        ) : (
+          <>
+            <View style={styles.header}>
+              <Text style={styles.titulo}>💸 Mis Gastitos</Text>
+              <View style={styles.iconos}>
+                <Icon name="search" type="font-awesome" color="black" />
+                <Icon name="filter" type="font-awesome" color="black" />
+              </View>
             </View>
-          </View>
 
-          <Divider />
-          <GastoFlatList gastos={gastos} />
-          <StatusBar style="auto" />
+            <Divider />
+            <GastoFlatList gastos={gastos} />
+            <StatusBar style="auto" />
 
-          <View style={styles.fabContainer}>
-            <FAB
-              icon={{ name: 'add', color: 'white' }}
-              placement="bottomRight"
-              color="#2e8b57"
-              onPress={() => setShowForm(true)}
-            />
-          </View>
-        </>
-      )}
-    </SafeAreaView>
+            <View style={styles.fabContainer}>
+              <FAB
+                icon={{ name: 'add', color: 'white' }}
+                placement="bottomRight"
+                color="#2e8b57"
+                onPress={() => setShowForm(true)}
+              />
+            </View>
+          </>
+        )}
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

@@ -4,6 +4,15 @@ const MAX_GASTOS = 15;
 
 const categorias = ['Comida', 'Transporte', 'Entretenimiento', 'Hogar', 'Educación', 'Salud'];
 
+const imagenesCategorias = {
+  Comida: 'https://images.unsplash.com/vector-1739806651163-75929fa8e121?fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE2fHx8ZW58MHx8fHx8&ixlib=rb-4.1.0&q=60&w=3000',
+  Transporte: 'https://cdn-icons-png.flaticon.com/512/6607/6607427.png',
+  Entretenimiento: 'https://cdn-icons-png.flaticon.com/512/4319/4319047.png',
+  Hogar: 'https://cdn-icons-png.flaticon.com/512/6676/6676728.png',
+  Educación: 'https://cdn-icons-png.flaticon.com/512/11905/11905744.png',
+  Salud: 'https://cdn-icons-png.flaticon.com/512/2221/2221756.png',
+};
+
 const getRandomCategoria = () => categorias[random(0, categorias.length - 1)];
 const getRandomMonto = () => random(500, 5000);
 const getRandomFecha = () => {
@@ -12,13 +21,17 @@ const getRandomFecha = () => {
   return `2025-${mes}-${dia}`;
 };
 
-const generarGasto = (id) => ({
-  id,
-  nombre: categorias[random(0, categorias.length - 1)],
-  monto: getRandomMonto(),
-  categoria: getRandomCategoria(),
-  fecha: getRandomFecha(),
-});
+const generarGasto = (id) => {
+  const categoria = getRandomCategoria();
+  return {
+    id,
+    nombre: categoria,
+    monto: getRandomMonto(),
+    categoria,
+    fecha: getRandomFecha(),
+    imagen: imagenesCategorias[categoria]
+  }
+};
 
 const gastos = Array.from({ length: MAX_GASTOS }, (_, i) => generarGasto(i + 1));
 

@@ -16,6 +16,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: 10,
   },
+  imagen: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
 });
 
 export default styles;
