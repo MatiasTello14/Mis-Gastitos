@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   montoValor: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#2e8b57',
+    color: '#333',
   },
   fechaDetalle: {
     fontSize: 16,

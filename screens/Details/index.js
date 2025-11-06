@@ -22,12 +22,8 @@ export default function Details() {
 
     const navigation = useNavigation()
 
-
-
     useFocusEffect(useCallback(() => {
-
         if (id) {
-
             getGastoById(id).then((gasto) => {
 
                 console.log('Gasto obtenido', gasto)
@@ -44,10 +40,7 @@ export default function Details() {
 
     }, [id]))
 
-
-
     const handleEliminar = () => {
-
         eliminarGasto(id).then((data) => {
 
             console.log('Gasto eliminado', data)
@@ -62,102 +55,45 @@ export default function Details() {
 
     }
 
-
-
     return (
 
         <View style={styles.container}>
-
             {gasto && (
-
                 <ScrollView contentContainerStyle={styles.scrollViewContent}>
-
-
-
-
-
                     <Card containerStyle={styles.fullDetailCard}>
-
-
-
                         <View style={styles.imageWrapper}>
-
                             <Image
-
                                 source={{ uri: gasto.imagen }}
-
                                 style={styles.detailImage}
-
                                 resizeMode="contain"
-
                             />
-
                         </View>
-
-
-
-
-
-
-
-
-
-
 
                         <View style={styles.descripcionContainer}>
-
                             <Text style={styles.nombreDetalle}>{gasto.nombre}</Text>
-
                             <Text style={styles.montoDetalle}>
-
                                 Monto: <Text style={styles.montoValor}>${gasto.monto}</Text>
-
                             </Text>
-
                             <Text style={styles.fechaDetalle}>Fecha: {gasto.fecha}</Text>
-
                             <Text style={styles.categoriaDetalle}>Categoría: {gasto.categoria || 'N/A'}</Text>
-
                         </View>
-
                     </Card>
 
-
-
-
-
                     <View style={styles.buttonContainer}>
-
                         <Button
-
                             title="✏️ Editar"
-
                             onPress={() => navigation.navigate('Form', { gastoData: gasto })}
-
                             color="#FFA500"
-
                         />
 
                         <Button
-
                             title="🗑️ Eliminar"
-
                             onPress={handleEliminar}
-
                             color="#FF4500"
-
                         />
-
                     </View>
-
-
-
                 </ScrollView>
-
             )}
-
         </View>
-
     )
-
 } 
