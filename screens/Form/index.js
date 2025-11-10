@@ -1,36 +1,38 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Button, ScrollView, Switch, ActivityIndicator} from 'react-native';
+import { View, Text, Button, ScrollView, Switch, ActivityIndicator, FlatList, Image, TouchableOpacity } from 'react-native';
 import { Input } from '@rneui/themed';
 import { Picker } from '@react-native-picker/picker';
 import styles from './styles';
 import { actualizarGasto, agregarGasto, getCotizaciones, getConversion } from '../../services/gastos';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useDebounce } from '../../hooks/useDebounce'; //hook control de conversion
+import { useDebounce } from '../../hooks/useDebounce';
+import { getCategorias } from '../../services/categorias';
 
 export default function GastoForm() {
-  const {gastoData} = useRoute().params || {}
-
+  const { gastoData } = useRoute().params || {}
   const navigation = useNavigation()
 
+  
+  const [nombre, setNombre] = useState(gastoData?.nombre || ''); 
   const [categoria, setCategoria] = useState(gastoData?.categoria || '');
   const [fecha, setFecha] = useState(gastoData?.fecha || '');
   const [imagen, setImagen] = useState(gastoData?.imagen || '');
   const [monto, setMonto] = useState(gastoData?.monto?.toString() || '');
   const [moneda, setMoneda] = useState(gastoData?.moneda || 'ARS');
   const [tipoConversion, setTipoConversion] = useState(gastoData?.tipoConversion || 'tarjeta');
-
-  // --- Estados de UI ---
+  
   const [cotizaciones, setCotizaciones] = useState([]);
   const [montoConvertido, setMontoConvertido] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingConversion, setLoadingConversion] = useState(false);
-
   const [errors, setErrors] = useState({});
+  const [categorias, setCategorias] = useState([]); 
 
   const debouncedMonto = useDebounce(monto, 500);
 
-  // 1. Cargar cotizaciones (mockeadas) al abrir el form
- useEffect(() => {
+  
+  useEffect(() => {
+    
     getCotizaciones()
       .then(data => {
         setCotizaciones(data);
@@ -39,13 +41,15 @@ export default function GastoForm() {
         }
       })
       .catch(err => setErrors(prev => ({ ...prev, api: err.message })));
-  }, []);
+    
+    
+    getCategorias().then(data => setCategorias(data));
+  }, []); 
 
-  // 2. Obtener previsualización de conversión (mockeada)
- useEffect(() => {
+  
+  useEffect(() => {
     setMontoConvertido(null);
     setErrors(prev => ({ ...prev, conversion: null }));
-
     if (moneda === 'USD' && debouncedMonto > 0 && tipoConversion) {
       setLoadingConversion(true);
       getConversion(debouncedMonto, moneda, tipoConversion)
@@ -55,14 +59,21 @@ export default function GastoForm() {
     }
   }, [debouncedMonto, moneda, tipoConversion]);
 
+  
+  const handleCategorySelect = (categoriaSeleccionada) => {
+    setCategoria(categoriaSeleccionada.nombre);
+    setImagen(categoriaSeleccionada.imagen);
+  }
+
+  
   const handleSubmit = async () => {
     setLoading(true);
     setErrors({});
-
-
-    // Validación - imagen ya no es obligatoria
-    if (!categoria || !monto || !fecha) {
+    
+   
+    if (!nombre || !categoria || !monto || !fecha) {
       setErrors({
+        nombre: !nombre,
         categoria: !categoria,
         monto: !monto,
         fecha: !fecha,
@@ -71,11 +82,11 @@ export default function GastoForm() {
       return;
     }
 
-    // Objeto a enviar (alineado con la API del backend)
     const gastoParaGuardar = {
+      nombre, 
       categoria,
       fecha,
-      imagen: imagen || null, // imagen opcional
+      imagen: imagen || null,
       monto: parseFloat(monto),
       moneda,
       tipoConversion: moneda === 'USD' ? tipoConversion : null
@@ -93,36 +104,60 @@ export default function GastoForm() {
     }
   };
     
-
   return (
-    <ScrollView style={{flex: 1}} contentContainerStyle={styles.container}>
+    
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }} contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        {/* Arreglamos el título de "Editar" */}
         <Text style={styles.titulo}>{gastoData?.id ? 'Editar' : 'Agregar'} Gasto</Text>
       </View>
+      
       <View style={styles.formContainer} >
-
-        {/* Unificamos 'nombre' y 'categoria' en un solo campo 'categoria' */}
+        
+        
         <Input 
-          placeholder="Título (Ej: Netflix, Supermercado)" 
-          value={categoria} 
-          onChangeText={setCategoria}
-          errorMessage={errors?.categoria ? 'Requerido' : ''}
+          placeholder="Nombre del Gasto (Ej: Netflix, Supermercado)" 
+          value={nombre} 
+          onChangeText={setNombre}
+          errorMessage={errors?.nombre ? 'Requerido' : ''}
         />
+
+       
+        <View style={styles.categoryLabelContainer}>
+          <Text style={styles.titulo}>Categoría</Text>
+          <Text style={styles.seleccionadaLabel}>
+            {categoria ? categoria : 'Ninguna'}
+          </Text>
+        </View>
+        <FlatList
+          data={categorias} 
+          horizontal
+          style={styles.categoryList}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              style={styles.categoryItem} 
+              onPress={() => handleCategorySelect(item)}
+            >
+              <Image source={{ uri: item.imagen }} style={styles.categoryImage} />
+              <Text style={styles.categoryText}>{item.nombre}</Text>
+            </TouchableOpacity>
+          )}
+        />
+        <View style={styles.crearCategoriaButton}>
+          <Button
+            title="Crear Nueva Categoría"
+            onPress={() => navigation.navigate('CategoryForm')}
+          />
+        </View>
+        
         <Input 
           placeholder="Fecha (YYYY-MM-DD)" 
           value={fecha} 
           onChangeText={setFecha}
           errorMessage={errors?.fecha ? 'Requerido' : ''}
         />
-         <Input 
-          placeholder="URL de la imagen (Opcional)" 
-          value={imagen} 
-          onChangeText={setImagen}
-          errorMessage={errors?.imagen ? 'Requerido' : ''}
-        />
 
-        {/* --- NUEVA SECCIÓN DE MONEDA --- */}
+        
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 10 }}>
           <Text style={{ fontSize: 18, color: moneda === 'ARS' ? 'black' : 'grey' }}>ARS</Text>
           <Switch
@@ -153,7 +188,7 @@ export default function GastoForm() {
             </Picker>
           </>
         )}
-        {/* --- FIN NUEVA SECCIÓN --- */}
+       
 
         {loadingConversion && <ActivityIndicator size="small" />}
         {montoConvertido !== null && !loadingConversion && (
@@ -161,10 +196,10 @@ export default function GastoForm() {
             Equivale a: <Text style={{ fontWeight: 'bold' }}>${montoConvertido} ARS</Text>
           </Text>
         )}
-
         {errors?.api && <Text style={{ color: 'red', textAlign: 'center', margin: 10 }}>Error: {errors.api}</Text>}
         {errors?.conversion && <Text style={{ color: 'red', textAlign: 'center', margin: 10 }}>Error: {errors.conversion}</Text>}
 
+        
         <View style={styles.buttons}>
           <Button title="Guardar" onPress={handleSubmit} disabled={loading} />
           <Button title="Cancelar" onPress={() => navigation.goBack()} color="grey" />
