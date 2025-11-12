@@ -37,6 +37,7 @@ const categoria = getRandomCategoria();
   const monto = getRandomMonto(); // El monto aleatorio siempre es ARS
   return {
     id,
+    nombre: `${categoria} ${id}`, 
     categoria: categoria, // Usamos 'categoria' para alinear con el backend
     fecha: getRandomFecha(),
     imagen: imagenesCategorias[categoria],
@@ -132,6 +133,7 @@ const simularConversion = (data) => {
     }
 
     return {
+        nombre: data.nombre,
         categoria: data.categoria,
         fecha: data.fecha,
         imagen: data.imagen || 'https://cdn-icons-png.flaticon.com/512/2221/2221756.png', // Imagen default

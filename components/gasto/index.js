@@ -15,11 +15,12 @@ export default function Gasto({ gasto }) {
             <Image style={styles.imagen} source={{ uri: gasto.imagen }} />
 
             <View style={styles.infoContainer}>
-              {/* CORREGIDO: Usamos 'categoria' en lugar de 'nombre' */}
-              <Text style={styles.nombre}>{gasto.categoria}</Text>
+              {/* Usamos 'categoria' en lugar de 'nombre' */}
+              <Text style={styles.nombre}>{gasto.nombre}</Text>
               <Text style={styles.fecha}>{gasto.fecha}</Text>
+              <Text style={styles.categoria}>{gasto.categoria}</Text>
               
-              {/* NUEVO: Mostrar monto original si es USD */}
+              {/* Mostrar monto original si es USD */}
               {gasto.moneda === 'USD' && (
                 <Text style={styles.monedaOriginal}>
                   (${gasto.monto} USD)
@@ -27,11 +28,10 @@ export default function Gasto({ gasto }) {
               )}
             </View>
 
-            {/* CORREGIDO: Usamos montoEnARS */}
+            {/* Usamos montoEnARS */}
             <Text style={styles.monto}>${gasto.montoEnARS}</Text>
           </View>
-          
-          {/* CORREGIDO: Quitamos los botones de Editar/Eliminar de la card */}
+
         </Card>
       </TouchableOpacity>
     </View>
