@@ -1,4 +1,3 @@
-//import 'react-native-gesture-handler';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';

@@ -7,9 +7,9 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
      flexGrow: 1,
-      justifyContent: 'center',  
-      alignItems: 'center',      
-      padding: 15,
+     justifyContent: 'center',  
+     alignItems: 'center',      
+     padding: 15,
   },
   imageContainer: {
     width: '100%',
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
 
-  // Estilos de Tipografía
+
   nombreDetalle: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 
-  // Contenedor de Botones
+  
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

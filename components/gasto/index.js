@@ -1,4 +1,3 @@
-// components/gasto/index.js
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Card } from '@rneui/themed';
 import styles from './styles';
