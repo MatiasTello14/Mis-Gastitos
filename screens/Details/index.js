@@ -60,7 +60,6 @@ export default function Details() {
 
                     <View style={styles.descripcionContainer}>
                         <Text style={styles.nombreDetalle}>{gasto.nombre}</Text>
-                        <Text style={styles.categoriaDetalle}>{gasto.categoria}</Text>
                         <Text style={styles.montoDetalle}>
                             Monto: <Text style={styles.montoValor}>${gasto.montoEnARS}</Text>
                         </Text>

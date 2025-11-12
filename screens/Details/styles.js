@@ -6,8 +6,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
   },
   scrollViewContent: {
-    padding: 15,
-    alignItems: 'center',
+     flexGrow: 1,
+      justifyContent: 'center',  
+      alignItems: 'center',      
+      padding: 15,
   },
   imageContainer: {
     width: '100%',
