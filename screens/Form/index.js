@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Button, ScrollView, Switch, ActivityIndicator, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Button, ScrollView, Switch, ActivityIndicator, FlatList, Image, TouchableOpacity, Alert, ImagePicker } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { Input } from '@rneui/themed';
 import { Picker } from '@react-native-picker/picker';
 import styles from './styles';
@@ -27,7 +28,8 @@ export default function GastoForm() {
   const [loadingConversion, setLoadingConversion] = useState(false);
   const [errors, setErrors] = useState({});
   const [categorias, setCategorias] = useState([]); 
-
+  const [archivo, setArchivo] = useState(gastoData?.archivo || null);
+  
   const debouncedMonto = useDebounce(monto, 500);
 
   
