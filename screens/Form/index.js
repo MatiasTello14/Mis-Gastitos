@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
-import { View, Text, Button, ScrollView, Switch, ActivityIndicator, FlatList, Image, TouchableOpacity } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import { View, Text, Button, ScrollView, Switch, ActivityIndicator } from 'react-native';
 import { Input } from '@rneui/themed';
 import { Picker } from '@react-native-picker/picker';
 import styles from './styles';
 import { actualizarGasto, agregarGasto, getCotizaciones, getConversion } from '../../services/gastos';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useDebounce } from '../../hooks/useDebounce';
 import { getCategorias } from '../../services/categorias';
+import * as DocumentPicker from "expo-document-picker";
 
 export default function GastoForm() {
   const { gastoData } = useRoute().params || {}
@@ -28,29 +29,37 @@ export default function GastoForm() {
   const [errors, setErrors] = useState({});
   const [categorias, setCategorias] = useState([]); 
 
+  const [archivo, setArchivo] = useState(null);
+
   const debouncedMonto = useDebounce(monto, 500);
 
+
+
   
-  useEffect(() => {
-    
-    getCotizaciones()
-      .then(data => {
-        setCotizaciones(data);
-        if (!gastoData && data.length > 0) {
-          setTipoConversion(data[0].casa);
-        }
-      })
-      .catch(err => setErrors(prev => ({ ...prev, api: err.message })));
+    useEffect(() => {
+      getCotizaciones()
+        .then(data => {
+          setCotizaciones(data);
+          if (!gastoData && data.length > 0) {
+            setTipoConversion(data[0].casa);
+          }
+        })
+        .catch(err => setErrors(prev => ({ ...prev, api: err.message })));
+    }, []);
         
-    getCategorias()
-      .then(data => {
-        setCategorias(data);
-        if (!gastoData && data.length > 0) {
-          setCategoria(data[0].titulo);
-          setImagen(data[0].imagen);
-        }
-      })
-  }, []); 
+    useFocusEffect(
+      useCallback(() => {
+        getCategorias()
+          .then(data => {
+            setCategorias(data);
+            if (!gastoData && data.length > 0) {
+              setCategoria(data[0].titulo || data[0].nombre);
+              setImagen(data[0].imagen);
+            }
+          })
+          .catch(err => console.log(err));
+      }, [gastoData])
+    );
 
   
   useEffect(() => {
@@ -66,52 +75,81 @@ export default function GastoForm() {
   }, [debouncedMonto, moneda, tipoConversion]);
 
   
-  const handleCategorySelect = (categoriaTitulo) => {
-    const cat = categorias.find(c => c.nombre === categoriaTitulo);
-    if (cat) {
-      setCategoria(cat.nombre);
-      setImagen(cat.imagen);
-    }
-  };
+    const handleCategorySelect = (categoriaTitulo) => {
+      const cat = categorias.find(c => (c.titulo || c.nombre) === categoriaTitulo);
+      if (cat) {
+        const tituloFinal = cat.titulo || cat.nombre;
+        setCategoria(tituloFinal);
+        setImagen(cat.imagen);
+      }
+    };
 
+  const handlePickFile = async () => {
+  try {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: ["image/*", "application/pdf"], 
+      copyToCacheDirectory: true,
+      multiple: false
+    });
+
+    if (result.canceled) return;
+
+    const file = result.assets[0];
+    setArchivo(file); 
+  } catch (error) {
+    console.log("Error picking file:", error);
+  }
+};
   
   const handleSubmit = async () => {
-    setLoading(true);
-    setErrors({});
-    
-   
-    if (!nombre || !categoria || !monto || !fecha) {
-        setErrors({
-        nombre: !nombre,
-        categoria: !categoria,
-        monto: !monto,
-        fecha: !fecha,
-    });
-      setLoading(false);
-      return;
-    }
+  setLoading(true);
+  setErrors({});
 
-    const gastoParaGuardar = {
-      nombre, 
-      categoria,
-      fecha,
-      imagen: imagen || null,
-      monto: parseFloat(monto),
-      moneda,
-      tipoConversion: moneda === 'USD' ? tipoConversion : null
-    };
-    try {
-      if (gastoData?.id) {
-        await actualizarGasto(gastoData.id, gastoParaGuardar);
-      } else {
-        await agregarGasto(gastoParaGuardar);
-      }
-      navigation.goBack();
-    } catch (error) {
-      setErrors({ api: error.message });
-      setLoading(false);
+  if (!nombre || !categoria || !monto || !fecha) {
+    setErrors({
+      nombre: !nombre,
+      categoria: !categoria,
+      monto: !monto,
+      fecha: !fecha,
+    });
+    setLoading(false);
+    return;
+  }
+
+  // armamos FormData
+  const formData = new FormData();
+  formData.append("nombre", nombre);
+  formData.append("categoria", categoria);
+  formData.append("fecha", fecha);
+  formData.append("imagen", imagen || "");
+  formData.append("monto", monto);
+  formData.append("moneda", moneda);
+
+  if (moneda === "USD") {
+    formData.append("tipoConversion", tipoConversion);
+  }
+
+ 
+  if (archivo) {
+    formData.append("archivo", {
+      uri: archivo.uri,
+      name: archivo.name,
+      type: archivo.mimeType || "application/octet-stream"
+    });
+  }
+
+  try {
+    if (gastoData?.id) {
+      await actualizarGasto(gastoData.id, formData);   
+    } else {
+      await agregarGasto(formData);                   
     }
-  };
+    navigation.goBack();
+  } catch (error) {
+    setErrors({ api: error.message });
+    setLoading(false);
+  }
+};
     
   return (
     
@@ -134,9 +172,16 @@ export default function GastoForm() {
           selectedValue={categoria}
           onValueChange={(itemValue) => handleCategorySelect(itemValue)}
         >
-          {categorias.map(c => (
-            <Picker.Item key={c.id} label={c.nombre} value={c.nombre} />
-          ))}
+          {Array.isArray(categorias) && categorias.map(c => {
+            const titulo = c.titulo || c.nombre;   // <-- fallback
+            return (
+              <Picker.Item
+                key={(c._id || c.id).toString()}
+                label={titulo}
+                value={titulo}
+              />
+            );
+          })}
         </Picker>
         
         <View style={styles.crearCategoriaButton}>
@@ -170,6 +215,16 @@ export default function GastoForm() {
           keyboardType="numeric"
           errorMessage={errors?.monto ? 'Requerido' : ''}
         />
+
+        <View style={{ marginVertical: 10, gap: 6 }}>
+          <Button title="📎 Adjuntar comprobante" onPress={handlePickFile} />
+          
+          {archivo && (
+            <Text style={{ textAlign: "center", color: "grey" }}>
+              Archivo seleccionado: {archivo.name}
+            </Text>
+          )}
+        </View>
 
         {moneda === 'USD' && (
           <>

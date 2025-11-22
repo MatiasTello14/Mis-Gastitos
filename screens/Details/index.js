@@ -4,6 +4,7 @@ import { Card } from '@rneui/themed';
 import { getGastoById, eliminarGasto } from '../../services/gastos';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import styles from './styles';
+import { formatFecha } from "../../utils/formatFecha";
 
 export default function Details() {
     const { id } = useRoute().params;
@@ -46,6 +47,7 @@ export default function Details() {
         return <ActivityIndicator style={{ flex: 1 }} size="large" />
     }
 
+    
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -71,9 +73,15 @@ export default function Details() {
                         )}
 
                         {/* Fecha */}
-                        <Text style={styles.fechaDetalle}>Fecha: {gasto.fecha}</Text>
+                        <Text style={styles.fecha}>{formatFecha(gasto.fecha)}</Text>
                         
                         <Text style={styles.categoriaDetalle}>Categoría: {gasto.categoria}</Text>
+
+                        {gasto.archivo && (
+                        <Text style={styles.categoriaDetalle}>
+                            Archivo adjunto: {gasto.archivo}
+                        </Text>
+)}
                     </View>
                 </Card>
 

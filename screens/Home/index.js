@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, TouchableOpacity} from 'react-native'
 import { Divider , Input} from '@rneui/themed'
 import { Icon } from '@rneui/base'
 import GastoFlatList from '../../components/gastoFlatList'
@@ -53,6 +53,7 @@ export default function Home() {
         }
      }
 
+
     return (
         <>
          <View style={styles.header}>
@@ -84,6 +85,16 @@ export default function Home() {
                 />
               </View>
             )}
+
+            
+            <TouchableOpacity
+                style={styles.btnCategorias}
+                onPress={() => navigation.navigate("CategoriasList")}
+             >
+              <Icon name="list" type="font-awesome" color="white" size={18} style={{ marginRight: 8 }} />
+              <Text style={styles.btnCategoriasTexto}>Administrar Categorías</Text>
+            </TouchableOpacity>
+
             {mostrarFiltro && (
               <View style={{ paddingHorizontal: 15 }}>
                 <Picker

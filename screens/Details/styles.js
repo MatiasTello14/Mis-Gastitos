@@ -16,14 +16,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20
   },
-  detailImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#ddd'
-  },
+  imageWrapper: {
+  width: "100%",
+  height: 220,               
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "#f7f7f7",
+  borderRadius: 12,
+  marginBottom: 15,
+},
+
+detailImage: {
+  width: "100%",
+  height: "100%",
+},
 
   infoCard: {
     width: '95%',
